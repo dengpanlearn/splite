@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/widget">
+        <file>mainWindow.qss</file>
+        <file>spliteWidget.qss</file>
+    </qresource>
+</RCC>

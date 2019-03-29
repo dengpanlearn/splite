@@ -1,0 +1,32 @@
+QMainWindow {
+   background-color: beige;
+   min-width:600px;
+   min-height:200px;
+}
+
+
+QMenu{
+    background-color: white;
+    border: 1px solid #DBDBDB;
+}
+
+QMenu::separator {
+    height: 1px;
+    background: #222222;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+QMenu::item{
+    background-color:transparent;
+    padding:2px 25px 2px 25px;
+    border-bottom: 1px solid #DBDBDB;
+    margin-left:2px;
+    margin-right:2px;
+}
+
+QMenu::item:selected{
+    background-color: #2dabf9;
+}
