@@ -44,6 +44,10 @@ protected:
 	virtual UINT OnTimeoutWork(UINT step);
 	virtual UINT OnPrepareStopWork(UINT step);
 
+private:
+	static void RotateMat(Mat &src, Mat &dst, float angle);
+	static BOOL FindImgColStartAndEnd(Mat const& orgImg, Vec3i& splitLine);
+	static BOOL FindImgRowStartAndEnd(Mat const& orgImg, Vec3i& splitLine);
 
 private:
 
