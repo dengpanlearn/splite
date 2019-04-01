@@ -11,7 +11,7 @@
 #define	QString2Char(strq, strc)				WcharToChar((LPCTSTR )strq.utf16(),strc)
 
 #else
-#define	QString2Char(strq, strc)				strc = strq.toUtf8().constData()
+#define	QString2Char(strq, strc)				{strc = strq.toUtf8().constData()}
 
 #endif // UNICODE
 
