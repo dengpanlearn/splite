@@ -164,14 +164,15 @@ UINT CTrainTask::OnTimeoutWork(UINT step)
 	if (nameLen <= 0)
 		return CTriggerTask::OnTimeoutWork(step);
 
-	Mat trainMatFloat(trainMat.size(),CV_32FC1);
+	Mat trainMatFloat;
 	trainMat.convertTo(trainMatFloat, CV_32FC1);
 	Ptr<ml::SVM> svm = ml::SVM::create();
 	svm->setType(ml::SVM::C_SVC);
 
-	svm->setKernel(ml::SVM::RBF);
-	svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6));
+	svm->setKernel(ml::SVM::LINEAR);
+	svm->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 1e-2));
 	svm->train(trainMatFloat, ml::ROW_SAMPLE, labMat);
+	
 	svm->save(saveFileName);
 
 	return CTriggerTask::OnTimeoutWork(step);

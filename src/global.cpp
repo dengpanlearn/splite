@@ -7,6 +7,7 @@
 
 #include "../include/spliteTask.h"
 #include "../include/trainTask.h"
+#include "../include/spliteIdentifyTask.h"
 
 #include <qstring.h>
 #include <qstringlist.h>
@@ -15,7 +16,7 @@
 
 CSpliteTask	g_spliteTask;
 CTrainTask	g_trainTask;
-
+CSpliteIdentifyTask g_spliteIdentityTask;
 
 void TestTrain()
 {
@@ -35,9 +36,16 @@ void TestTrain()
 	g_trainTask.StartTrigger(&taskArg);
 }
 
+void TestIdentity()
+{
+	SPLITE_IDENTITY_TASK_ARG taskArg(QString("E:\\self\\opencv\\img\\test9.jpg"), QString("E:\\self\\opencv\\trainOut\\dd.xml"), 6);
+	g_spliteIdentityTask.StartTrigger(&taskArg);
+}
+
 
 BOOL UsrInit()
 {
+#if 1
 	if (!g_spliteTask.Create(SPLITE_TASK_PRI, SPLITE_TASK_STACKSIZE, SPLITE_TASK_TIMEOUT_MS))
 	{
 		printf("splite task create fail\n");
@@ -49,6 +57,12 @@ BOOL UsrInit()
 		printf("train task create fail\n");
 		return FALSE;
 	}
+#endif
+	if (!g_spliteIdentityTask.Create(IDENTITY_TASK_PRI, IDENTITY_TASK_STACKSIZE, IDENTITY_TASK_TIMEOUT_MS))
+	{
+		printf("identity task create fail\n");
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -56,6 +70,8 @@ BOOL UsrInit()
 
 void UsrExit()
 {
+	g_spliteIdentityTask.StopWork();
+	g_spliteIdentityTask.WaitWorkExit(2000);
 	g_spliteTask.StopWork();
 	g_spliteTask.WaitWorkExit(2000);
 	g_trainTask.StopWork();

@@ -2,5 +2,6 @@
     <qresource prefix="/widget">
         <file>mainWindow.qss</file>
         <file>spliteWidget.qss</file>
+        <file>identityWidget.qss</file>
     </qresource>
 </RCC>

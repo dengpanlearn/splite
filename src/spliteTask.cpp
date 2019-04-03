@@ -16,12 +16,13 @@ using namespace cv;
 #define	SPLITE_BORDER_LINES					2
 #define IMG_SEPERATOR_WAIT_START_PIXS		2
 #define IMG_SEPERATOR_WAIT_END_PIXS			3
-#define	SPLITE_FILE_NAME_MAX				128
 #define SPLITE_IMAGE_ROTATE_ANGLE_MIN		(-10)
 #define SPLITE_IMAGE_ROTATE_ANGLE_MAX		(10)
 #define SPLITE_IMAGE_AVAILABLE_WIDTH(_cols)	((_cols)/4)
 #define	SPLITE_IMAGE_RESIZE_WIDTH			(16)
 #define	SPLITE_IMAGE_RESIZE_HEIGHT			(25)
+#define	SPLITE_FILE_NAME_MAX				128
+
 CSpliteTask::CSpliteTask()
 {
 	m_curFileIdx = 0;
@@ -67,28 +68,27 @@ UINT CSpliteTask::OnTimeoutWork(UINT step)
 
 	do
 	{
-		QString fileName = m_fileNameList[m_curFileIdx++];
+		QString fileName = m_fileNameList[m_curFileIdx];
 		char szFileName[SPLITE_FILE_NAME_MAX] = {0};
 		int nameLen = QString2Char(fileName, szFileName);
 		if (nameLen < 0)
 			break;
 		szFileName[nameLen] = '\0';
 
-		QFileInfo fileInfo(fileName);
-		QString fileBaseName = fileInfo.baseName();
-	
-	
-		QString spliteOutFileNamePrefix = m_spliteOutDir +"/"+ fileBaseName;
-		char szSpliteFileOutNamePreFix[SPLITE_FILE_NAME_MAX] = {0};
-		nameLen = QString2Char(spliteOutFileNamePrefix, szSpliteFileOutNamePreFix);
-		if (nameLen < 0)
+		Mat orgImg = imread(szFileName);
+		if (orgImg.data == NULL)
 			break;
 
-		szSpliteFileOutNamePreFix[nameLen] = '\0';
-		SpliteWork(szFileName, szSpliteFileOutNamePreFix);
-		UpdateTriggerWorkProgress();
+		vector<Mat> spliteImgs;
+		if (!SpliteWork(orgImg, spliteImgs))
+			break;
+
+
+		ProcessSplitedImage(spliteImgs);
 	} while (FALSE);
 
+	UpdateTriggerWorkProgress();
+	m_curFileIdx++;
 	return step;
 }
 
@@ -97,6 +97,102 @@ UINT CSpliteTask::OnPrepareStopWork(UINT step)
 	return CTriggerTask::OnPrepareStopWork(step);
 }
 
+BOOL CSpliteTask::SpliteWork(Mat& orgImg, vector<Mat>& spliteMats)
+{
+	// 去除边框
+	if ((orgImg.rows < SPLITE_BORDER_LINES) || (orgImg.cols < SPLITE_BORDER_LINES))
+		return FALSE;
+
+	Mat noneBorderImg(orgImg.rows, orgImg.cols, orgImg.type(), Scalar(255, 255, 255));
+
+	Mat toCopyImg = noneBorderImg(Range(SPLITE_BORDER_LINES, orgImg.rows - SPLITE_BORDER_LINES + 1),
+		Range(SPLITE_BORDER_LINES, orgImg.cols - SPLITE_BORDER_LINES + 1));
+
+	orgImg(Range(SPLITE_BORDER_LINES, orgImg.rows - SPLITE_BORDER_LINES + 1),
+		Range(SPLITE_BORDER_LINES, orgImg.cols - SPLITE_BORDER_LINES + 1)).copyTo(toCopyImg);
+
+
+	// 灰度化
+
+	Mat grayImg;
+	grayImg.create(noneBorderImg.size(), noneBorderImg.type());
+	cvtColor(noneBorderImg, grayImg, COLOR_BGR2GRAY);
+
+	// 二值化
+	Mat binImg;
+	binImg.create(grayImg.size(), grayImg.type());
+	threshold(grayImg, binImg, 120, 255, THRESH_BINARY);
+
+	// 分割
+	vector<Vec3i> splitLines;
+	if (!SeparatorMat(binImg, splitLines))
+		return FALSE;
+	
+		
+	for (int i = 0; i < splitLines.size(); i++)
+	{
+		int colStart = splitLines[i][0];
+		int colEnd = splitLines[i][1];
+		Mat tmp = binImg(Range::all(), Range(colStart, colEnd));
+		Mat spliteImg = tmp;
+		Vec3i rowLines;
+		if (FindImgRowStartAndEnd(tmp, rowLines))
+		{
+			spliteImg = tmp(Range(rowLines[0], rowLines[1]), Range::all());
+
+			Mat minRotateImg = spliteImg;
+			int minAngle = 0;
+			int minCols = spliteImg.cols;
+			for (int angle = SPLITE_IMAGE_ROTATE_ANGLE_MIN; angle <= SPLITE_IMAGE_ROTATE_ANGLE_MAX; angle++)
+			{
+				Mat rotateImg;
+				Vec3i spliteCol;
+				RotateMat(spliteImg, rotateImg, angle);
+				FindImgColStartAndEnd(rotateImg, spliteCol);
+				// y轴占用最小，图像旋转后可能带来噪声，因此需要滤波
+				if ((spliteCol[2] < minCols) && (spliteCol[2] > SPLITE_IMAGE_AVAILABLE_WIDTH(rotateImg.cols)))
+				{
+					minAngle = angle;
+					minCols = spliteCol[2];
+					minRotateImg = rotateImg;
+				}
+			}
+
+			spliteImg = minRotateImg;
+		}
+
+		resize(spliteImg, spliteImg, Size(SPLITE_IMAGE_RESIZE_WIDTH, SPLITE_IMAGE_RESIZE_HEIGHT));
+		spliteMats.push_back(spliteImg);
+	}
+	
+	return TRUE;
+}
+
+BOOL CSpliteTask::ProcessSplitedImage(vector<Mat>& spliteMats)
+{
+	QString fileName = m_fileNameList[m_curFileIdx];
+
+	QFileInfo fileInfo(fileName);
+	QString fileBaseName = fileInfo.baseName();
+
+	QString spliteOutFileNamePrefix = m_spliteOutDir + "/" + fileBaseName;
+	char szSpliteFileOutNamePreFix[SPLITE_FILE_NAME_MAX] = { 0 };
+	int nameLen = QString2Char(spliteOutFileNamePrefix, szSpliteFileOutNamePreFix);
+	if (nameLen < 0)
+		return FALSE;
+
+	szSpliteFileOutNamePreFix[nameLen] = '\0';
+	for (int i = 0; i < spliteMats.size(); i++)
+	{
+		Mat spliteImg = spliteMats[i];
+		char fileNameOut[SPLITE_FILE_NAME_MAX] = { 0 };
+		sprintf_s(fileNameOut, sizeof(fileNameOut) - 1, "%s_%d.jpg", szSpliteFileOutNamePreFix, i);
+		imwrite(fileNameOut, spliteImg);
+	}
+
+	return TRUE;
+}
+#if 0
 BOOL CSpliteTask::SpliteWork(const char* pFileName, const char* pOutFileNamePrefix)
 {
 	Mat orgImg = imread(pFileName);
@@ -174,6 +270,7 @@ BOOL CSpliteTask::SpliteWork(const char* pFileName, const char* pOutFileNamePref
 	}
 	return TRUE;
 }
+#endif
 
 BOOL CSpliteTask::SeparatorMat(Mat const& binImg, vector<Vec3i>& splitLines)
 {

@@ -40,29 +40,6 @@ QLabel{
     text-align:center;
 }
 
-QLabel#LabInNum{
-     border: none;
-    min-width: 10px;
-    min-height: 20px;
-    
-    border-radius:5px;
-    padding:2px;
-    font-size: 10px;
-    text-align:center;
-    max-width:50px;
-}
-
-QLabel#LabSuccess{
-     border: none;
-    min-width: 10px;
-    min-height: 20px;
-    
-    border-radius:5px;
-    padding:2px;
-    font-size: 10px;
-    text-align:center;
-     max-width:50px;
-}
 
 QLabel#Identity_File_Img{
      border: none;
@@ -90,27 +67,6 @@ QLineEdit:focus {
     padding: 0px;
 }
 
-QLineEdit#EditInNum{
-    border:none;
-    padding: 1px;
-  
-    min-width:1px;
-    min-height: 20px;
-    text-align:center;
-    font-size:10px;
-     max-width:80px;
-}
-
-QLineEdit#EditSuccess{
-    border:none;
-    padding: 1px;
-  
-    min-width:1px;
-    min-height: 20px;
-    text-align:center;
-    font-size:10px;
-     max-width:80px;
-}
 
 QLineEdit#Identity_Identity_out{
       border-width: 1px;

@@ -64,15 +64,6 @@ QLabel#LabSuccess{
      max-width:50px;
 }
 
-QLabel#Identity_File_Img{
-     border: none;
-    min-width: 150px;
-    min-height: 40px;
-    
-    border-radius:0px;
-    padding:2px;
-}
-
 QLineEdit{
     border-width: 1px;
     padding: 1px;
@@ -112,19 +103,6 @@ QLineEdit#EditSuccess{
      max-width:80px;
 }
 
-QLineEdit#Identity_Identity_out{
-      border-width: 1px;
-    padding: 1px;
-    border-style: solid;
-    border-color: darkkhaki;
-    border-radius: 5px;
-    min-width: 100px;
-    min-height: 40px;
-    max-width:250px;
-    text-align:center;
-    font-size:15px;
-}
-
 QProgressBar {
  border: 2px solid grey;
  border-radius: 5px;
@@ -138,5 +116,3 @@ QProgressBar::chunk {
  min-width: 10px;
   margin: 0.5px;
 }
-
-

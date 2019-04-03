@@ -101,6 +101,7 @@ CSpliteWidget::~CSpliteWidget()
 
 void CSpliteWidget::RetranslateUi()
 {
+#if 0
 	QTextCodec* pTextCodec = QTextCodec::codecForLocale();
 	QFile qssFile(pTextCodec->toUnicode(":/widget/spliteWidget.qss"));
 	if (qssFile.open(QFile::ReadOnly))
@@ -108,6 +109,7 @@ void CSpliteWidget::RetranslateUi()
 		qApp->setStyleSheet(qssFile.readAll());
 		qssFile.close();
 	}
+#endif
 	connect(m_pBtnInView, SIGNAL(clicked(bool)), this, SLOT(OnSelectInDir(bool)));
 	connect(m_pBtnOutView, SIGNAL(clicked(bool)), this, SLOT(OnSelectOutDir(bool)));
 	connect(m_pBtnStart, SIGNAL(clicked(bool)), this, SLOT(OnStartSplite(bool)));
@@ -176,7 +178,36 @@ void CSpliteWidget::OnStartSplite(bool checked)
 		}
 		else {
 			QTextCodec* pTextCodec = QTextCodec::codecForLocale();
-			QMessageBox::warning(NULL, pTextCodec->toUnicode("警告"), pTextCodec->toUnicode("分割启动失败"));
+			QMessageBox msgBox;
+
+			msgBox.setWindowTitle(pTextCodec->toUnicode("提示"));
+			msgBox.setText(pTextCodec->toUnicode("分割失败"));
+
+			msgBox.setIcon(QMessageBox::Information);
+			msgBox.addButton(QMessageBox::Ok);
+			msgBox.setStyleSheet(
+				"QPushButton {"
+				"border: 1px solid #555;"
+				"padding: 4px;"
+				"min-width: 65px;"
+				"min-height: 40px;"
+				"border - radius:5px;"
+				"font-size: 20px;"
+				"text-align:center;"
+				"}"
+				"QPushButton:hover {"
+				" background-color: #999;"
+				"}"
+				"QPushButton:pressed {"
+				"background-color: #333;"
+				"border-color: #555;"
+				"color: beige;"
+				"}"
+
+				"QLabel{ min-width: 100px;min-height:50px;font:15px;}"
+			);
+
+			msgBox.exec();
 		}
 
 	}

@@ -9,6 +9,7 @@
 #include <triggerTask.h>
 #include <qstringlist.h>
 
+
 class SPLITE_TASK_ARG
 {
 public:
@@ -44,12 +45,14 @@ protected:
 	virtual UINT OnTimeoutWork(UINT step);
 	virtual UINT OnPrepareStopWork(UINT step);
 
-private:
+	virtual BOOL ProcessSplitedImage(vector<Mat>& spliteMats);
+
+protected:
 	static void RotateMat(Mat &src, Mat &dst, float angle);
 	static BOOL FindImgColStartAndEnd(Mat const& orgImg, Vec3i& splitLine);
 	static BOOL FindImgRowStartAndEnd(Mat const& orgImg, Vec3i& splitLine);
 
-private:
+protected:
 
 	enum SEPERATOR_STEP
 	{
@@ -57,9 +60,11 @@ private:
 		SEPERATOR_STEP_FINDING_END = 1
 	};
 
+	static BOOL SpliteWork(Mat& orgImg, vector<Mat>& spliteMats);
+#if 0
 	BOOL SpliteWork(const char* pFileName, const char* pOutFileNamePrefix);
-
-	BOOL SeparatorMat(Mat const& binImg, vector<Vec3i>& splitLines);
+#endif
+	static BOOL SeparatorMat(Mat const& binImg, vector<Vec3i>& splitLines);
 
 private:
 	QStringList		m_fileNameList;
