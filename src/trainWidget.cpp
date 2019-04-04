@@ -156,7 +156,40 @@ void CTrainWidget::OnStartTrain(bool checked)
 	QString selectDirPath = m_pLineEditInDir->text();
 	QString selectOutFile = m_pLineEditOutFile->text();
 	if (selectDirPath.isEmpty() || selectOutFile.isEmpty())
+	{
+		QTextCodec* pTextCodec = QTextCodec::codecForLocale();
+		QMessageBox msgBox;
+
+		msgBox.setWindowTitle(pTextCodec->toUnicode("提示"));
+		msgBox.setText(pTextCodec->toUnicode("请输入正确路径"));
+
+		msgBox.setIcon(QMessageBox::Information);
+		msgBox.addButton(QMessageBox::Ok);
+		msgBox.setStyleSheet(
+			"QPushButton {"
+			"border: 1px solid #555;"
+			"padding: 4px;"
+			"min-width: 65px;"
+			"min-height: 40px;"
+			"border - radius:5px;"
+			"font-size: 20px;"
+			"text-align:center;"
+			"}"
+			"QPushButton:hover {"
+			" background-color: #999;"
+			"}"
+			"QPushButton:pressed {"
+			"background-color: #333;"
+			"border-color: #555;"
+			"color: beige;"
+			"}"
+
+			"QLabel{ min-width: 100px;min-height:50px;font:15px;}"
+		);
+
+		msgBox.exec();
 		return;
+	}
 
 	QDir selectDir = QDir(selectDirPath);
 	QStringList fileNameFilter;

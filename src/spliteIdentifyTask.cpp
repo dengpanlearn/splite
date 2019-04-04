@@ -35,7 +35,12 @@ BOOL CSpliteIdentifyTask::Create(int pri, int stackSize, int timeoutMs)
 
 void CSpliteIdentifyTask::Close()
 {
-	return CSpliteTask::Close();
+	CSpliteTask::Close();
+	if (m_pTrainOutput != NULL)
+	{
+		free(m_pTrainOutput);
+		m_pTrainOutput = NULL;
+	}
 }
 
 BOOL CSpliteIdentifyTask::PrepareTriggerParam(void* pArg)
@@ -44,7 +49,7 @@ BOOL CSpliteIdentifyTask::PrepareTriggerParam(void* pArg)
 
 	m_toIdentityFileName = pTaskArg->GetToIdentityFileName();
 	m_trainFileName = pTaskArg->GetTrainFileName();
-	m_maxSpliteCounts = pTaskArg->GetMaxSpliteCounts();
+
 	if (m_pTrainOutput != NULL)
 	{
 		if (m_maxSpliteCounts < pTaskArg->GetMaxSpliteCounts())
@@ -53,7 +58,11 @@ BOOL CSpliteIdentifyTask::PrepareTriggerParam(void* pArg)
 			m_pTrainOutput = NULL;
 			m_maxSpliteCounts = pTaskArg->GetMaxSpliteCounts();
 		}
+		else
+			memset(m_pTrainOutput, 0, m_maxSpliteCounts);
 	}
+	else
+		m_maxSpliteCounts = pTaskArg->GetMaxSpliteCounts();
 
 	if (m_pTrainOutput == NULL)
 		m_pTrainOutput = (char*)calloc(m_maxSpliteCounts + 1, 1);
@@ -73,7 +82,7 @@ UINT CSpliteIdentifyTask::OnTimeoutWork(UINT step)
 		return CTriggerTask::OnTimeoutWork(step);
 
 	identityFileName[nameLen] = '\0';
-	
+
 	Mat orgImg = imread(identityFileName, IMREAD_COLOR);
 	if (orgImg.data == NULL)
 		return CTriggerTask::OnTimeoutWork(step);
@@ -84,7 +93,7 @@ UINT CSpliteIdentifyTask::OnTimeoutWork(UINT step)
 	if (!ProcessSplitedImage(splitImgs))
 		return CTriggerTask::OnTimeoutWork(step);
 	
-	UpdateTriggerWorkProgress();
+
 	return TRIGGER_STEP_WAIT_END;
 }
 
@@ -120,7 +129,7 @@ BOOL CSpliteIdentifyTask::ProcessSplitedImage(vector<Mat>& spliteMats)
 		reshapeImg.convertTo(floatImg, CV_32FC1);
 		
 		int predictVal = (int)svm->predict(floatImg);
-
+		UpdateTriggerWorkProgress();
 		CSingleLock lock(GetMutex(), TRUE);
 		m_pTrainOutput[i] = (char)predictVal;
 	}

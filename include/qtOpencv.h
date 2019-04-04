@@ -1,4 +1,10 @@
-#pragma once
+/*qtOpencv.h*/
+
+#ifndef __QT_OPENCV_H__
+
+#define	__QT_OPENCV_H__
+
+
 
 #include <qmainwindow.h>
 class QAction;
@@ -31,3 +37,4 @@ private:
 	CTrainWidget*	m_pTrainWidget;
 	CIdentityWidget*	m_pIdentityWidget;
 };
+#endif // !__QT_OPENCV_H__

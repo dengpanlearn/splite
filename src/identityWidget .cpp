@@ -123,7 +123,7 @@ void CIdentityWidget::OnSelectInFile(bool checked)
 	if (!filePath.isEmpty())
 	{
 		m_pLineEditInFile->setText(filePath);
-		QImage img(filePath);
+		QImage img(filePath, "Format_RGB32");
 		m_pLabInImg->setPixmap(QPixmap::fromImage(img));
 	}
 }
@@ -193,13 +193,45 @@ void CIdentityWidget::OnStartIdentity(bool checked)
 			m_pBtnInView->setEnabled(FALSE);
 			m_pBtnTrainView->setEnabled(FALSE);
 			m_pBtnStart->setEnabled(FALSE);
-			m_pProgressIdentity->setMaximum(1);
+			m_pProgressIdentity->setMaximum(4);
+			m_pProgressIdentity->setVisible(TRUE);
+			m_pProgressIdentity->setValue(0);
 			m_pTimerIdentity->start();
 			m_pLineEditOutIdentity->setText("");
 		}
 	}
 	else {
-	
+		QTextCodec* pTextCodec = QTextCodec::codecForLocale();
+		QMessageBox msgBox;
+
+		msgBox.setWindowTitle(pTextCodec->toUnicode("提示"));
+		msgBox.setText(pTextCodec->toUnicode("输入正确图片和训练文件"));
+
+		msgBox.setIcon(QMessageBox::Information);
+		msgBox.addButton(QMessageBox::Ok);
+		msgBox.setStyleSheet(
+			"QPushButton {"
+			"border: 1px solid #555;"
+			"padding: 4px;"
+			"min-width: 65px;"
+			"min-height: 40px;"
+			"border - radius:5px;"
+			"font-size: 20px;"
+			"text-align:center;"
+			"}"
+			"QPushButton:hover {"
+			" background-color: #999;"
+			"}"
+			"QPushButton:pressed {"
+			"background-color: #333;"
+			"border-color: #555;"
+			"color: beige;"
+			"}"
+
+			"QLabel{ min-width: 100px;min-height:50px;font:15px;}"
+		);
+
+		msgBox.exec();
 	}
 }
 
