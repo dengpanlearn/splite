@@ -79,22 +79,22 @@ UINT CSpliteIdentifyTask::OnTimeoutWork(UINT step)
 	char identityFileName[SPLITE_IDENTITY_FILE_NAME_MAX] = { 0 };
 	int nameLen = QString2Char(m_toIdentityFileName, identityFileName);
 	if (nameLen <= 0)
-		return CTriggerTask::OnTimeoutWork(step);
+		return OnTimeoutWorkError();
 
 	identityFileName[nameLen] = '\0';
 
 	Mat orgImg = imread(identityFileName, IMREAD_COLOR);
 	if (orgImg.data == NULL)
-		return CTriggerTask::OnTimeoutWork(step);
+		return OnTimeoutWorkError();
 	vector<Mat> splitImgs;
 	if (!SpliteWork(orgImg, splitImgs))
-		return CTriggerTask::OnTimeoutWork(step);
+		return OnTimeoutWorkError();
 
 	if (!ProcessSplitedImage(splitImgs))
-		return CTriggerTask::OnTimeoutWork(step);
+		return OnTimeoutWorkError();
 	
 
-	return TRIGGER_STEP_WAIT_END;
+	return CTriggerTask::OnTimeoutWork(step);
 }
 
 UINT CSpliteIdentifyTask::OnPrepareStopWork(UINT step)

@@ -252,7 +252,7 @@ void CSpliteWidget::OnTimeoutSplite()
 	int val = g_spliteTask.GetTriggerWorkProgress();
 	m_pLineEditSuccessNum->setText(QString::number(val));
 	m_pProgressSplite->setValue(val);
-	if (g_spliteTask.IsTriggerStop())
+	if (g_spliteTask.IsTriggerEnd())
 	{
 		m_pProgressSplite->setVisible(FALSE);
 
@@ -260,8 +260,12 @@ void CSpliteWidget::OnTimeoutSplite()
 		QMessageBox msgBox;
 
 		msgBox.setWindowTitle(pTextCodec->toUnicode("提示"));
-		msgBox.setText(pTextCodec->toUnicode("分割完成"));
-		
+		if (g_spliteTask.IsTriggerEndSuccess())
+			msgBox.setText(pTextCodec->toUnicode("分割完成"));
+		else
+			msgBox.setText(pTextCodec->toUnicode("分割失败"));
+
+		g_spliteTask.StopTrigger();
 		msgBox.setIcon(QMessageBox::Information);
 		msgBox.addButton(QMessageBox::Ok);
 		msgBox.setStyleSheet(

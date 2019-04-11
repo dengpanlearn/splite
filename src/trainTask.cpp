@@ -42,6 +42,7 @@ BOOL CTrainTask::PrepareTriggerParam(void* pArg)
 	TRAIN_TASK_ARG* pTaskArg = (TRAIN_TASK_ARG*)pArg;
 	QStringList fileList = pTaskArg->GetFileList();
 
+	m_trainList.clear();
 	m_trainOutFile = pTaskArg->GetOutFile();
 	m_trainMatCols = VertifyTrainFiles(fileList, m_trainList);
 	return (m_trainMatCols > 0);
@@ -123,7 +124,7 @@ UINT CTrainTask::OnTimeoutWork(UINT step)
 {
 	int trainRows = m_trainList.size();
 	if (trainRows <= 0)
-		return CTriggerTask::OnTimeoutWork(step);
+		return OnTimeoutWorkError();
 
 	Mat trainMat(trainRows, m_trainMatCols, CV_8UC1);
 	Mat labMat (trainRows, 1, CV_32SC1);
@@ -162,7 +163,7 @@ UINT CTrainTask::OnTimeoutWork(UINT step)
 	char saveFileName[TRAIN_FILE_NAME_MAX] = { 0 };
 	int nameLen = QString2Char(m_trainOutFile, saveFileName);
 	if (nameLen <= 0)
-		return CTriggerTask::OnTimeoutWork(step);
+		return OnTimeoutWorkError();
 
 	Mat trainMatFloat;
 	trainMat.convertTo(trainMatFloat, CV_32FC1);

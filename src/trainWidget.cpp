@@ -110,11 +110,12 @@ void CTrainWidget::RetranslateUi()
 		qApp->setStyleSheet(qssFile.readAll());
 		qssFile.close();
 	}
+#endif
 	connect(m_pBtnInView, SIGNAL(clicked(bool)), this, SLOT(OnSelectInDir(bool)));
 	connect(m_pBtnOutView, SIGNAL(clicked(bool)), this, SLOT(OnSelectOutFile(bool)));
 	connect(m_pBtnStart, SIGNAL(clicked(bool)), this, SLOT(OnStartTrain(bool)));
 	connect(m_pTimerTrain, SIGNAL(timeout()), this, SLOT(OnTimeoutTrain()));
-#endif
+
 }
 
 
@@ -259,7 +260,7 @@ void CTrainWidget::OnTimeoutTrain()
 	int val = g_trainTask.GetTriggerWorkProgress();
 	m_pLineEditSuccessNum->setText(QString::number(val));
 	m_pProgressTrain->setValue(val);
-	if (g_trainTask.IsTriggerStop())
+	if (g_trainTask.IsTriggerEnd())
 	{
 		m_pProgressTrain->setVisible(FALSE);
 
@@ -267,8 +268,12 @@ void CTrainWidget::OnTimeoutTrain()
 		QMessageBox msgBox;
 
 		msgBox.setWindowTitle(pTextCodec->toUnicode("提示"));
-		msgBox.setText(pTextCodec->toUnicode("训练完成"));
+		if (g_trainTask.IsTriggerEndSuccess())
+			msgBox.setText(pTextCodec->toUnicode("训练完成"));
+		else
+			msgBox.setText(pTextCodec->toUnicode("训练失败"));
 
+		g_trainTask.StopTrigger();
 		msgBox.setIcon(QMessageBox::Information);
 		msgBox.addButton(QMessageBox::Ok);
 		msgBox.setStyleSheet(

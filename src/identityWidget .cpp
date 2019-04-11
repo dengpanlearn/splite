@@ -248,49 +248,15 @@ void CIdentityWidget::OnTimeoutIdentity()
 		QMessageBox msgBox;
 
 		msgBox.setWindowTitle(pTextCodec->toUnicode("提示"));
-		msgBox.setText(pTextCodec->toUnicode("识别完成"));
-		
+		if (g_spliteIdentityTask.IsTriggerEndSuccess())
+			msgBox.setText(pTextCodec->toUnicode("识别完成"));
+		else
+			msgBox.setText(pTextCodec->toUnicode("识别失败"));
+
 		char result[20] = { 0 };
 		g_spliteIdentityTask.GetIdentityResult(result, 20);
 		m_pLineEditOutIdentity->setText(result);
 		g_spliteIdentityTask.StopTrigger();
-		msgBox.setIcon(QMessageBox::Information);
-		msgBox.addButton(QMessageBox::Ok);
-		msgBox.setStyleSheet(
-			"QPushButton {"
-			"border: 1px solid #555;"
-			"padding: 4px;"
-			"min-width: 65px;"
-			"min-height: 40px;"
-			"border - radius:5px;"
-			"font-size: 20px;"
-			"text-align:center;"
-			"}"
-			"QPushButton:hover {"
-			" background-color: #999;"
-			"}"
-			"QPushButton:pressed {"
-			"background-color: #333;"
-			"border-color: #555;"
-			"color: beige;"
-			"}"
-
-			"QLabel{ min-width: 100px;min-height:50px;font:15px;}"
-		);
-
-		msgBox.exec();
-		m_pBtnStart->setEnabled(TRUE);
-		m_pBtnInView->setEnabled(TRUE);
-		m_pBtnTrainView->setEnabled(TRUE);
-		m_pTimerIdentity->stop();
-	}
-	else if (g_spliteIdentityTask.IsTriggerStop())
-	{
-		QMessageBox msgBox;
-		QTextCodec* pTextCodec = QTextCodec::codecForLocale();
-		msgBox.setWindowTitle(pTextCodec->toUnicode("提示"));
-		msgBox.setText(pTextCodec->toUnicode("识别失败"));
-
 		msgBox.setIcon(QMessageBox::Information);
 		msgBox.addButton(QMessageBox::Ok);
 		msgBox.setStyleSheet(
